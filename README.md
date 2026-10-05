@@ -14,6 +14,6 @@ AUDIUS_API_KEY=<Audius API key>
 AUDIUS_BEARER_TOKEN=<Audius bearer token>
 ```
 
-Set the frontend project's `NEXT_PUBLIC_API_URL` to `https://<backend-deployment>.vercel.app/api`. Apply `database/schema.sql` to the configured database before using playlist and history endpoints. Keep secret values in Vercel's environment settings, not in committed files.
+Set the frontend project's `API_URL` to `https://playlist-new-be.vercel.app/api/`. Apply `database/schema.sql` to the configured database before using playlist and history endpoints. Keep secret values in Vercel's environment settings, not in committed files.
 
 After deployment, check `https://<backend-deployment>.vercel.app/api/health`.

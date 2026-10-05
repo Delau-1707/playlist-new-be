@@ -10,6 +10,12 @@ router.get("/search", async (req, res) => {
   try {
     const { q } = req.query;
 
+    if (typeof q !== "string" || q.trim().length < 2) {
+      return res.status(400).json({
+        message: "Query pencarian minimal 2 karakter",
+      });
+    }
+
     const items = await searchAudius(q);
 
     res.json({
@@ -32,6 +38,12 @@ router.get("/stream/:trackId", async (req, res) => {
     if (!trackId) {
       return res.status(400).json({
         message: "trackId wajib diisi",
+      });
+    }
+
+    if (!process.env.AUDIUS_BEARER_TOKEN) {
+      return res.status(500).json({
+        message: "AUDIUS_BEARER_TOKEN belum diatur",
       });
     }
 
@@ -77,9 +89,29 @@ router.get("/stream/:trackId", async (req, res) => {
       "bytes"
     );
 
-    Readable
-      .fromWeb(response.body)
-      .pipe(res);
+    const nodeStream = Readable.fromWeb(
+      response.body
+    );
+
+    nodeStream.on("error", (error) => {
+      console.error(error);
+
+      if (!res.headersSent) {
+        res.status(500).json({
+          message: "Gagal melakukan streaming Audius",
+        });
+
+        return;
+      }
+
+      res.destroy(error);
+    });
+
+    res.on("close", () => {
+      nodeStream.destroy();
+    });
+
+    nodeStream.pipe(res);
 
   } catch (error) {
     console.error(error);

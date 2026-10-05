@@ -40,16 +40,29 @@ export async function searchMusic(query, pageToken = "") {
   return {
     items: data.items
       .filter((item) => item.id?.videoId)
-      .map((item) => ({
-        videoId: item.id.videoId,
-        title: item.snippet.title,
-        description: item.snippet.description,
-        channelTitle: item.snippet.channelTitle,
-        thumbnail:
-          item.snippet.thumbnails?.high?.url ||
-          item.snippet.thumbnails?.medium?.url ||
-          item.snippet.thumbnails?.default?.url,
-      })),
+      .map((item) => {
+        const videoId = item.id.videoId;
+
+        return {
+          source: "youtube",
+
+          sourceId: videoId,
+
+          videoId,
+
+          title: item.snippet.title,
+          description: item.snippet.description,
+          artist: item.snippet.channelTitle,
+          channelTitle: item.snippet.channelTitle,
+          duration: 0,
+          streamUrl: null,
+          thumbnail:
+            item.snippet.thumbnails?.high?.url ||
+            item.snippet.thumbnails?.medium?.url ||
+            item.snippet.thumbnails?.default?.url ||
+            null,
+        };
+      }),
     nextPageToken: data.nextPageToken || null,
   };
 }
