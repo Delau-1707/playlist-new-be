@@ -10,7 +10,35 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin(origin, callback) {
+      // Izinkan request tanpa origin (Postman, curl, server-to-server)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const allowed = [
+        process.env.FRONTEND_URL,
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "https://playlist-new.vercel.app",
+        "https://playlist-new-be.vercel.app",
+      ].filter(Boolean);
+
+      const isVercelPreview =
+        /^https:\/\/playlist-new[a-z0-9-]*\.vercel\.app$/.test(
+          origin
+        );
+
+      if (allowed.includes(origin) || isVercelPreview) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`Origin tidak diizinkan: ${origin}`));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
