@@ -55,4 +55,32 @@ app.use("/api/audius", audiusRoutes);
 app.use("/api/history", historyRoutes);
 app.use("/api/playlist", playlistRoutes);
 
+// Route /api yang tidak dikenal -> balas JSON, bukan halaman HTML bawaan.
+app.use((req, res) => {
+  res.status(404).json({
+    message: `Endpoint tidak ditemukan: ${req.method} ${req.originalUrl}`,
+  });
+});
+
+// Error handler terakhir. Tanpa ini Express membalas HTML untuk body JSON yang
+// rusak atau error tak terduga, sehingga frontend yang mengharapkan JSON gagal
+// membaca pesannya.
+app.use((error, req, res, next) => {
+  if (res.headersSent) {
+    return next(error);
+  }
+
+  console.error(error);
+
+  const isBadJson =
+    error.type === "entity.parse.failed" ||
+    error instanceof SyntaxError;
+
+  res.status(isBadJson ? 400 : error.status || 500).json({
+    message: isBadJson
+      ? "Body JSON tidak valid"
+      : "Terjadi kesalahan pada server",
+  });
+});
+
 export default app;

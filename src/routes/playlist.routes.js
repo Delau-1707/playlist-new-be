@@ -166,6 +166,15 @@ router.delete("/items/:id", async (req, res) => {
       });
     }
 
+    // id di URL selalu string. Kolomnya BIGSERIAL, jadi kirim nilai non-angka
+    // langsung ke query akan memicu error Postgres (500). Validasi dulu
+    // supaya balasannya 400 yang jelas.
+    if (!/^\d+$/.test(id)) {
+      return res.status(400).json({
+        message: "id tidak valid",
+      });
+    }
+
     await sql`
       DELETE FROM playlist_items pi
       USING playlists p

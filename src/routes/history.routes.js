@@ -3,7 +3,6 @@ import { sql } from "../db.js";
 
 const router = express.Router();
 
-
 router.get("/", async (req, res) => {
   try {
     const { clientId } = req.query;
@@ -41,33 +40,17 @@ router.get("/", async (req, res) => {
   }
 });
 
-
 router.post("/", async (req, res) => {
   try {
-    const {
-      clientId,
-      source,
-      sourceId,
-      title,
-      artist,
-      thumbnail,
-    } = req.body;
+    const { clientId, source, sourceId, title, artist, thumbnail } = req.body;
 
-    if (
-      !clientId ||
-      !source ||
-      !sourceId ||
-      !title
-    ) {
+    if (!clientId || !source || !sourceId || !title) {
       return res.status(400).json({
-        message:
-          "clientId, source, sourceId dan title wajib diisi",
+        message: "clientId, source, sourceId dan title wajib diisi",
       });
     }
 
-    if (
-      !["youtube", "audius"].includes(source)
-    ) {
+    if (!["youtube", "audius"].includes(source)) {
       return res.status(400).json({
         message: "Source tidak valid",
       });
@@ -105,7 +88,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-
 router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -114,6 +96,15 @@ router.delete("/:id", async (req, res) => {
     if (!clientId) {
       return res.status(400).json({
         message: "clientId wajib diisi",
+      });
+    }
+
+    // id di URL selalu string. Kolomnya BIGSERIAL, jadi kirim nilai non-angka
+    // langsung ke query akan memicu error Postgres (500). Validasi dulu
+    // supaya balasannya 400 yang jelas.
+    if (!/^\d+$/.test(id)) {
+      return res.status(400).json({
+        message: "id tidak valid",
       });
     }
 
@@ -134,6 +125,5 @@ router.delete("/:id", async (req, res) => {
     });
   }
 });
-
 
 export default router;
