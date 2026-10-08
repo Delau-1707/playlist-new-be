@@ -1,5 +1,6 @@
 import express from "express";
 import { searchMusic } from "../services/youtube.service.js";
+import { sendServerError } from "../utils/httpError.js";
 
 const router = express.Router();
 
@@ -20,11 +21,7 @@ router.get("/search", async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: error.message,
-    });
+    sendServerError(res, error, "Gagal mencari video di YouTube");
   }
 });
 

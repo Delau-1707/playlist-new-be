@@ -2,6 +2,7 @@ import express from "express";
 import { Readable } from "node:stream";
 
 import { searchAudius } from "../services/audius.service.js";
+import { sendServerError } from "../utils/httpError.js";
 
 const router = express.Router();
 
@@ -22,11 +23,7 @@ router.get("/search", async (req, res) => {
       items,
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: error.message,
-    });
+    sendServerError(res, error, "Gagal mencari audio di Audius");
   }
 });
 
@@ -114,11 +111,9 @@ router.get("/stream/:trackId", async (req, res) => {
     nodeStream.pipe(res);
 
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Gagal melakukan streaming Audius",
-    });
+    // Respons streaming bisa saja sudah terkirim sebagian, jadi helper akan
+    // memutus koneksi alih-alih mencoba mengirim JSON.
+    sendServerError(res, error, "Gagal melakukan streaming Audius");
   }
 });
 

@@ -1,5 +1,6 @@
 import express from "express";
 import { sql } from "../db.js";
+import { sendServerError } from "../utils/httpError.js";
 
 const router = express.Router();
 
@@ -32,11 +33,7 @@ router.get("/", async (req, res) => {
       items: history,
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: error.message,
-    });
+    sendServerError(res, error, "Gagal mengambil riwayat");
   }
 });
 
@@ -80,11 +77,7 @@ router.post("/", async (req, res) => {
       item,
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: error.message,
-    });
+    sendServerError(res, error, "Gagal menyimpan riwayat");
   }
 });
 
@@ -118,11 +111,7 @@ router.delete("/:id", async (req, res) => {
       message: "History berhasil dihapus",
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: error.message,
-    });
+    sendServerError(res, error, "Gagal menghapus riwayat");
   }
 });
 

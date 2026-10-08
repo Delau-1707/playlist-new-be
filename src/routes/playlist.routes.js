@@ -1,5 +1,6 @@
 import express from "express";
 import { sql } from "../db.js";
+import { sendServerError } from "../utils/httpError.js";
 
 const router = express.Router();
 
@@ -71,11 +72,7 @@ router.get("/", async (req, res) => {
       items,
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: error.message,
-    });
+    sendServerError(res, error, "Gagal mengambil playlist");
   }
 });
 
@@ -146,11 +143,7 @@ router.post("/items", async (req, res) => {
       item,
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: error.message,
-    });
+    sendServerError(res, error, "Gagal menambahkan lagu ke playlist");
   }
 });
 
@@ -187,11 +180,7 @@ router.delete("/items/:id", async (req, res) => {
       message: "Lagu dihapus dari playlist",
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: error.message,
-    });
+    sendServerError(res, error, "Gagal menghapus lagu dari playlist");
   }
 });
 

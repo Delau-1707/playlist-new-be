@@ -5,6 +5,7 @@ import youtubeRoutes from "./routes/youtube.routes.js";
 import audiusRoutes from "./routes/audius.routes.js";
 import historyRoutes from "./routes/history.routes.js";
 import playlistRoutes from "./routes/playlist.routes.js";
+import { sendServerError } from "./utils/httpError.js";
 
 const app = express();
 
@@ -76,11 +77,13 @@ app.use((error, req, res, next) => {
     error.type === "entity.parse.failed" ||
     error instanceof SyntaxError;
 
-  res.status(isBadJson ? 400 : error.status || 500).json({
-    message: isBadJson
-      ? "Body JSON tidak valid"
-      : "Terjadi kesalahan pada server",
-  });
+  if (isBadJson) {
+    return res.status(400).json({
+      message: "Body JSON tidak valid",
+    });
+  }
+
+  sendServerError(res, error);
 });
 
 export default app;
